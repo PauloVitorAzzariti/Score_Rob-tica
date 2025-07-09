@@ -6,7 +6,7 @@
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background: #0076c0; /* Azul da logo */
+      background: #0076c0;
       margin: 0;
       padding: 20px;
     }
@@ -33,6 +33,17 @@
     label {
       font-weight: bold;
       color: #333;
+    }
+    .team-name-input {
+      margin-top: 10px;
+    }
+    .team-name-input input {
+      margin-top: 5px;
+      padding: 6px;
+      width: 100%;
+      max-width: 300px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
     }
     .team {
       margin-bottom: 30px;
@@ -67,7 +78,7 @@
       border: 1px solid #ccc;
     }
     button {
-      background: #d90087; /* Rosa da logo */
+      background: #d90087;
       color: white;
       padding: 12px 24px;
       border: none;
@@ -93,16 +104,17 @@
 <body>
   <div class="container">
     <header>
-      <img src="img/Logo.png" alt="Logo Escola Viva">
+      <img src="e0eebd14-e79f-4cec-affe-4e984b2f1bc5.png" alt="Logo Escola Viva">
     </header>
 
     <h1>Avaliação de Equipes - LEGO</h1>
     
     <label for="teamCount">Quantas equipes vão participar?</label>
     <input type="number" id="teamCount" value="2" min="1" max="10">
-    <button onclick="generateTeams()">Criar Equipes</button>
-    
-    <form id="teamsForm"></form>
+    <button onclick="generateTeamNameInputs()">Próximo</button>
+
+    <form id="nameInputForm"></form>
+    <form id="teamsForm" style="display:none;"></form>
     
     <div class="result" id="result"></div>
   </div>
@@ -119,15 +131,42 @@
       'Branco': 2
     };
 
-    function generateTeams() {
-      const form = document.getElementById('teamsForm');
+    function generateTeamNameInputs() {
       const teamCount = parseInt(document.getElementById('teamCount').value);
-      form.innerHTML = '';
+      const nameInputForm = document.getElementById('nameInputForm');
+      const teamsForm = document.getElementById('teamsForm');
+      nameInputForm.innerHTML = '';
+      teamsForm.innerHTML = '';
+      teamsForm.style.display = 'none';
 
       for (let i = 1; i <= teamCount; i++) {
+        const div = document.createElement('div');
+        div.className = 'team-name-input';
+        div.innerHTML = `<label>Nome da Equipe ${i}:</label><input type="text" id="teamName${i}" required>`;
+        nameInputForm.appendChild(div);
+      }
+
+      const btn = document.createElement('button');
+      btn.innerText = 'Criar Avaliação';
+      btn.type = 'button';
+      btn.onclick = generateTeams;
+      nameInputForm.appendChild(btn);
+    }
+
+    function generateTeams() {
+      const teamCount = parseInt(document.getElementById('teamCount').value);
+      const nameInputForm = document.getElementById('nameInputForm');
+      const teamsForm = document.getElementById('teamsForm');
+      teamsForm.style.display = 'block';
+      teamsForm.innerHTML = '';
+      nameInputForm.style.display = 'none';
+
+      for (let i = 1; i <= teamCount; i++) {
+        const teamName = document.getElementById(`teamName${i}`).value || `Equipe ${i}`;
         let teamDiv = document.createElement('div');
         teamDiv.className = 'team';
-        teamDiv.innerHTML = `<h3>Equipe ${i}</h3>`;
+        teamDiv.innerHTML = `<h3>${teamName}</h3>
+                             <input type="hidden" name="teamName${i}" value="${teamName}">`;
 
         let colorDiv = document.createElement('div');
         colorDiv.className = 'color-points';
@@ -142,14 +181,14 @@
         });
 
         teamDiv.appendChild(colorDiv);
-        form.appendChild(teamDiv);
+        teamsForm.appendChild(teamDiv);
       }
 
       let calcBtn = document.createElement('button');
       calcBtn.type = 'button';
       calcBtn.innerText = 'Calcular Pontuação';
       calcBtn.onclick = calculatePoints;
-      form.appendChild(calcBtn);
+      teamsForm.appendChild(calcBtn);
     }
 
     function calculatePoints() {
@@ -158,13 +197,17 @@
       let resultHTML = '';
 
       for (let i = 1; i <= teamCount; i++) {
+        let teamNameInput = document.querySelector(`[name='teamName${i}']`);
+        let teamName = teamNameInput ? teamNameInput.value : `Equipe ${i}`;
         let score = 0;
+
         Object.keys(pointTable).forEach(color => {
           const input = document.querySelector(`[name='team${i}_${color}']`);
           const quantity = parseInt(input.value) || 0;
           score += quantity * pointTable[color];
         });
-        resultHTML += `Equipe ${i}: <strong>${score}</strong> pontos<br>`;
+
+        resultHTML += `${teamName}: <strong>${score}</strong> pontos<br>`;
       }
 
       resultDiv.innerHTML = resultHTML;
