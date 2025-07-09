@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Avaliação de Equipes - LEGO</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #0076c0; /* Azul da logo */
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 950px;
+      margin: auto;
+      background: #ffffff;
+      padding: 30px 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.15);
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header img {
+      height: 80px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      text-align: center;
+      color: #0076c0;
+    }
+    label {
+      font-weight: bold;
+      color: #333;
+    }
+    .team {
+      margin-bottom: 30px;
+    }
+    .team h3 {
+      color: #333;
+      margin-bottom: 8px;
+    }
+    .color-points {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .color-points label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 110px;
+      background: #e6f1f8;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.05);
+      font-weight: bold;
+      color: #0076c0;
+    }
+    input[type="number"] {
+      width: 50px;
+      text-align: center;
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #d90087; /* Rosa da logo */
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      display: block;
+      margin: 20px auto;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #b8006d;
+    }
+    .result {
+      text-align: center;
+      font-size: 20px;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #005080;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="img/Logo.png" alt="Logo Escola Viva">
+    </header>
+
+    <h1>Avaliação de Equipes - LEGO</h1>
+    
+    <label for="teamCount">Quantas equipes vão participar?</label>
+    <input type="number" id="teamCount" value="2" min="1" max="10">
+    <button onclick="generateTeams()">Criar Equipes</button>
+    
+    <form id="teamsForm"></form>
+    
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const pointTable = {
+      'Verde claro': 10,
+      'Roxo': 9,
+      'Rosa': 8,
+      'Azul': 7,
+      'Laranja': 6,
+      'Verde escuro': 5,
+      'Vermelho': 4,
+      'Branco': 2
+    };
+
+    function generateTeams() {
+      const form = document.getElementById('teamsForm');
+      const teamCount = parseInt(document.getElementById('teamCount').value);
+      form.innerHTML = '';
+
+      for (let i = 1; i <= teamCount; i++) {
+        let teamDiv = document.createElement('div');
+        teamDiv.className = 'team';
+        teamDiv.innerHTML = `<h3>Equipe ${i}</h3>`;
+
+        let colorDiv = document.createElement('div');
+        colorDiv.className = 'color-points';
+
+        Object.keys(pointTable).forEach(color => {
+          let label = document.createElement('label');
+          label.innerHTML = `
+            ${color}
+            <input type="number" min="0" value="0" name="team${i}_${color}">
+          `;
+          colorDiv.appendChild(label);
+        });
+
+        teamDiv.appendChild(colorDiv);
+        form.appendChild(teamDiv);
+      }
+
+      let calcBtn = document.createElement('button');
+      calcBtn.type = 'button';
+      calcBtn.innerText = 'Calcular Pontuação';
+      calcBtn.onclick = calculatePoints;
+      form.appendChild(calcBtn);
+    }
+
+    function calculatePoints() {
+      const resultDiv = document.getElementById('result');
+      const teamCount = parseInt(document.getElementById('teamCount').value);
+      let resultHTML = '';
+
+      for (let i = 1; i <= teamCount; i++) {
+        let score = 0;
+        Object.keys(pointTable).forEach(color => {
+          const input = document.querySelector(`[name='team${i}_${color}']`);
+          const quantity = parseInt(input.value) || 0;
+          score += quantity * pointTable[color];
+        });
+        resultHTML += `Equipe ${i}: <strong>${score}</strong> pontos<br>`;
+      }
+
+      resultDiv.innerHTML = resultHTML;
+    }
+  </script>
+</body>
+</html>
